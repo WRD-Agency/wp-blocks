@@ -274,15 +274,15 @@ function the_inner_blocks( string $classes = '', ?array $allowed_blocks = null, 
  *
  * The field must be setup to have an 'array' return format.
  *
- * @param string|array $link The link field. Can either pass the value or the name of a field.
+ * @param string|array    $link The link field. Can either pass the value or the name of a field.
  *
- * @param string       $class Classes to add to the link. Optional.
+ * @param string|string[] $class_or_attrs Classes to add to the link or an array of attributes. Optional.
  *
  * @return string
  *
  * @since 1.0.0
  */
-function get_the_link( string|array $link, string $class = '' ): string {
+function get_the_link( string|array $link, string|array $class_or_attrs = '' ): string {
 	if ( is_string( $link ) && function_exists( 'get_field' ) ) {
 		/**
 		 * We check for the function first.
@@ -296,25 +296,31 @@ function get_the_link( string|array $link, string $class = '' ): string {
 		return '';
 	}
 
+	$atts = is_array( $class_or_attrs ) ? $class_or_attrs : array( 'class' => $class_or_attrs );
+
+	$atts['url']    = $link['url'];
+	$atts['target'] = $link['target'] ? $link['target'] : '_self';
+
 	// Automatically add a relation of 'noopener' to external links.
-	$attr        = '';
 	$parsed_link = wp_parse_url( $link['url'] );
 	$parsed_home = wp_parse_url( get_home_url() );
 
 	if ( array_key_exists( 'host', $parsed_link ) && $parsed_link['host'] !== $parsed_home['host'] ) {
-		$attr .= " rel='noopener' ";
+		$atts['rel'] = 'noopener';
 	}
 
-	$url    = $link['url'];
-	$title  = $link['title'];
-	$target = $link['target'] ? $link['target'] : '_self';
+	$title = apply_filters( 'wrd/wp-blocks/get_the_link/title', $link['title'], $link );
+	$atts = apply_filters( 'wrd/wp-blocks/get_the_link/attributes', $atts, $link );
+
+	$atts_str = '';
+
+	foreach ( $atts as $attr => $value ) {
+		$atts_str .= esc_html( $attr ) . '="' . esc_attr( $value ) . '" ';
+	}
 
 	return sprintf(
-		'<a href="%s" target="%s" class="%s" %s>%s</a>',
-		esc_url( $url ),
-		esc_attr( $target ),
-		esc_attr( $class ),
-		$attr,
+		'<a %s>%s</a>',
+		$atts_str,
 		esc_html( $title )
 	);
 }
