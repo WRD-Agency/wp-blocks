@@ -298,7 +298,7 @@ function get_the_link( string|array $link, string|array $class_or_attrs = '' ): 
 
 	$atts = is_array( $class_or_attrs ) ? $class_or_attrs : array( 'class' => $class_or_attrs );
 
-	$atts['url']    = $link['url'];
+	$atts['href']   = $link['url'];
 	$atts['target'] = $link['target'] ? $link['target'] : '_self';
 
 	// Automatically add a relation of 'noopener' to external links.
@@ -310,7 +310,7 @@ function get_the_link( string|array $link, string|array $class_or_attrs = '' ): 
 	}
 
 	$title = apply_filters( 'wrd/wp-blocks/get_the_link/title', $link['title'], $link );
-	$atts = apply_filters( 'wrd/wp-blocks/get_the_link/attributes', $atts, $link );
+	$atts  = apply_filters( 'wrd/wp-blocks/get_the_link/attributes', $atts, $link );
 
 	$atts_str = '';
 
@@ -330,16 +330,16 @@ function get_the_link( string|array $link, string|array $class_or_attrs = '' ): 
  *
  * The field must be setup to have an 'array' return format.
  *
- * @param string|array $link The link field. Can either pass the value or the name of a field.
+ * @param string|array    $link The link field. Can either pass the value or the name of a field.
  *
- * @param string       $class Classes to add to the link. Optional.
+ * @param string|string[] $class_or_attrs Classes to add to the link or an array of attributes. Optional.
  *
  * @return void
  *
  * @since 1.0.0
  */
-function the_link( string|array $link, string $class = '' ): void {
-	echo get_the_link( $link, $class ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted.
+function the_link( string|array $link, string|array $class_or_attrs = '' ): void {
+	echo get_the_link( $link, $class_or_attrs ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted.
 }
 
 /**
